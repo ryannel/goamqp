@@ -9,17 +9,14 @@ import (
 	"time"
 )
 
-func Start(host string, port int, username string, password string) (MessageBroker, error) {
-	connectionString := createConnectionString(host, port, username, password)
+func Connect(host string, port int, username string, password string, vhost string) (*amqp.Connection, error) {
+	connectionString := createConnectionString(host, port, username, password, vhost)
+	return connect(connectionString)
+}
 
-	connection, err := connectWithRetry(connectionString, 3, 8, 20)
-	if err != nil {
-		return MessageBroker{}, err
-	}
-
-	return MessageBroker{
-		connection: connection,
-	}, nil
+func ConnectWithRetry(host string, port int, username string, password string, vhost string, minBackOff int, maxBackOff int, numRetries int) (*amqp.Connection, error) {
+	connectionString := createConnectionString(host, port, username, password, vhost)
+	return connectWithRetry(connectionString, minBackOff, maxBackOff, numRetries)
 }
 
 func connect(connectionString string) (*amqp.Connection, error) {
@@ -30,8 +27,8 @@ func connect(connectionString string) (*amqp.Connection, error) {
 	return conn, err
 }
 
-func createConnectionString(host string, port int, username string, password string) string {
-	return fmt.Sprintf("amqp://%s:%s@%s:%d", username, password, host, port)
+func createConnectionString(host string, port int, username string, password string, vhost string) string {
+	return fmt.Sprintf("amqp://%s:%s@%s:%d/%s", username, password, host, port, vhost)
 }
 
 func connectWithRetry(connectionString string, minBackOff int, maxBackOff int, numRetries int) (*amqp.Connection, error) {
