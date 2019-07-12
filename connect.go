@@ -1,8 +1,9 @@
 package goamqp
 
 import (
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
+	"github.com/streadway/amqp"
 	"log"
 	"math/rand"
 	"time"
