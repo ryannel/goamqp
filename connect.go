@@ -9,9 +9,15 @@ import (
 	"time"
 )
 
-func Connect(host string, port int, username string, password string, vhost string) (*amqp.Connection, error) {
+func Connect(host string, port int, username string, password string, vhost string) (MessageBroker, error) {
 	connectionString := createConnectionString(host, port, username, password, vhost)
-	return connect(connectionString)
+	connection, err := connect(connectionString)
+
+	messageBroker := MessageBroker{
+		connection: connection,
+	}
+
+	return messageBroker, err
 }
 
 func ConnectWithRetry(host string, port int, username string, password string, vhost string, minBackOff int, maxBackOff int, numRetries int) (*amqp.Connection, error) {
